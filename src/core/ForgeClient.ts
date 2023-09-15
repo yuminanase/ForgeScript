@@ -1,6 +1,5 @@
 import { Client, ClientOptions, IntentsBitField, Partials } from "discord.js"
-import { CommandManager } from "../managers/CommandManager"
-import { CommandType } from "../structures/Command"
+import { CommandType } from "../structures/BaseCommand"
 import { EventManager, NativeEventName } from "../managers/EventManager"
 import { Compiler } from "./Compiler"
 import { FunctionManager } from "../managers/FunctionManager"
@@ -8,6 +7,8 @@ import { ForgeFunctionManager } from "../managers/ForgeFunctionManager"
 import { ForgeExtension } from "../structures/ForgeExtension"
 import { InviteSystem } from "../structures/InviteSystem"
 import { CooldownManager } from "../managers/CooldownManager"
+import { NativeCommandManager } from "../managers/NativeCommandManager"
+import { ApplicationCommandManager } from "../managers/ApplicationCommandManager"
 
 export interface IRestriction {
     guildIDs?: string[]
@@ -19,6 +20,7 @@ export interface IForgeClientOptions extends ClientOptions {
     events?: CommandType[]
     prefixes: string[]
     functions?: string
+    token?: string
     useInviteSystem?: boolean
     optionalGuildID?: boolean
     extensions?: ForgeExtension[]
@@ -27,10 +29,12 @@ export interface IForgeClientOptions extends ClientOptions {
 
 export class ForgeClient extends Client<true> {
     declare public options: (Omit<ClientOptions, "intents"> & { intents: IntentsBitField; }) & IForgeClientOptions
-    public commands = new CommandManager(this)
+    public commands = new NativeCommandManager(this)
+    public applicationCommands = new ApplicationCommandManager(this)
     public events = new EventManager(this)
     public cooldowns = new CooldownManager(this)
     public functions = new ForgeFunctionManager(this);
+
     // eslint-disable-next-line no-undef
     [x: PropertyKey]: unknown
 
@@ -80,5 +84,12 @@ export class ForgeClient extends Client<true> {
 
     get<T>(key: string) {
         return this[key] as T 
+    }
+
+    override login(token?: string | undefined): Promise<string> {
+        return super.login(token ?? this.options.token).then(async str => {
+            await this.applicationCommands.register()
+            return str
+        })
     }
 }

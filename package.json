@@ -1,11 +1,10 @@
 {
   "name": "forgescript",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "ForgeScript is a comprehensive package that empowers you to effortlessly interact with Discord's API. It ensures scripting remains easy to learn and consistently effective.",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "scripts": {
-    "preinstall": "tsc",
     "prepublishOnly": "tsc",
     "docgen": "tsc && typedoc ./src --out ./docs && node dist/docgen",
     "eslint": "eslint ./src/**/* --fix",
@@ -28,6 +27,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/express": "^4.17.17",
+    "@types/lodash": "^4.14.198",
     "@types/node": "^20.5.7",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "discord.js": "^14.13.0",
+    "lodash": "^4.17.21",
     "ms-utility": "^3.3.0",
     "undici": "^5.23.0"
   },

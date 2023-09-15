@@ -14,12 +14,14 @@ const client = new ForgeClient({
         "GuildMembers",
         "DirectMessages",
         "GuildInvites",
-        "GuildModeration"
+        "GuildModeration",
+        "GuildMessageReactions"
     ],
     events: [
         "guildAuditLogEntryCreate",
         "ready",
         "messageCreate",
+        "messageReactionAdd",
         "guildMemberAdd",
         "interactionCreate"
     ],
@@ -41,12 +43,10 @@ console.log(
     "Started"
 )
 
-client.functions.add(
-    "get_user",
-    [ "id" ],
-    "$return[$username[$env[id]]]"
-)
-
+client.commands.add({
+    type: Events.MessageReactionAdd,
+    code: "$sendMessage[1148816643447865415;hello] $log[$guildID bro]"
+})
 client.commands.add({
     type: Events.GuildAuditLogEntryCreate,
     code: `
@@ -85,7 +85,16 @@ client.commands.add({
     code: "$djsEval[$message]"
 })
 
+client.commands.add({
+    type: "interactionCreate",
+    code: `$onlyIf[$isAutocomplete]
+    $log[Command name: $commandName | Focused option name: $focusedOptionName - $focusedOptionValue]
+    $addChoice[tmr;land]
+    `
+})
+
 client.commands.load("dist/__tests__/commands")
+client.applicationCommands.load("dist/__tests__/app")
 
 // eslint-disable-next-line no-undef
 client.login(process.env.TOKEN)

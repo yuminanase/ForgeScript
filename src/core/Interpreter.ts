@@ -4,8 +4,8 @@ import { Context } from "../structures/Context"
 import { ReturnType } from "../structures/Return"
 import { IExtendedCompilationResult } from "./Compiler"
 import { ForgeClient } from "./ForgeClient"
-import { Command } from "../structures"
 import { Channel, Guild, GuildAuditLogsEntry, GuildEmoji, GuildMember, Invite, Message, Role, User, VoiceState } from "discord.js"
+import { BaseCommand } from "../structures"
 
 export interface IStates {
     message: Message
@@ -31,7 +31,7 @@ export interface IRunnable {
     client: ForgeClient
     data: IExtendedCompilationResult
     obj: Sendable
-    command: Command
+    command: BaseCommand<unknown> | null
     doNotSend?: boolean
     extras?: unknown
     states?: States
@@ -42,7 +42,7 @@ export class Interpreter {
     public static async run(runtime: IRunnable): Promise<string | null> {
         const ctx = new Context(runtime)
         
-        if (runtime.command.data.guildOnly && !ctx.guild) return null
+        if (runtime.command?.data.guildOnly && !ctx.guild) return null
         else if (runtime.client.options.restrictions !== undefined) {
             const { guildIDs, userIDs } = runtime.client.options.restrictions
             const guildID = ctx.guild?.id
